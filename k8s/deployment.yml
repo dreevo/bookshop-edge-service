@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookshop-edge-service
+  labels:
+    app: bookshop-edge-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookshop-edge-service
+  template:
+    metadata:
+      labels:
+        app: bookshop-edge-service
+    spec:
+      containers:
+        - name: bookshop-edge-service
+          image: bookshop-edge-service
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command: [ "sh", "-c", "sleep 5" ]
+          ports:
+            - containerPort: 9000
+          env:
+            - name: BOOKSHOP_CATALOG_SERVICE_URL
+              value: http://bookshop-catalog-service
+            - name: BOOKSHOP_ORDER_SERVICE_URL
+              value: http://bookshop-order-service
+            - name: SPRING_CLOUD_CONFIG_URI
+              value: http://bookshop-config-service
+            - name: SPRING_REDIS_HOST
+              value: bookshop-redis
